@@ -1,0 +1,436 @@
+{
+  "info": {
+    "name": "Indian Govt Scheme Recommendation API",
+    "description": "Complete API collection for the Indian Government Scheme Recommendation backend. Import this file into Postman and set the `base_url` variable to your server (default: http://localhost:5000).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "admin_token", "value": "", "type": "string" },
+    { "key": "scheme_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "  console.log('Token saved:', json.token.substring(0, 30) + '...');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ramesh Kumar\",\n  \"email\": \"ramesh.test@example.com\",\n  \"password\": \"Farmer@1234\",\n  \"age\": 38,\n  \"gender\": \"male\",\n  \"annualIncome\": 85000,\n  \"occupation\": \"farmer\",\n  \"state\": \"Uttar Pradesh\",\n  \"category\": \"OBC\",\n  \"educationLevel\": \"primary\",\n  \"preferredLanguage\": \"hi\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "  console.log('User token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ramesh.farmer@test.com\",\n  \"password\": \"Test@1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('admin_token', json.token);",
+                  "  console.log('Admin token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@govtschemes.in\",\n  \"password\": \"Admin@123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 User Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/profile"
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{base_url}}/api/user/profile",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preferredLanguage\": \"hi\",\n  \"annualIncome\": 95000\n}"
+            }
+          }
+        },
+        {
+          "name": "Save Scheme",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/saved-schemes/{{scheme_id}}"
+          }
+        },
+        {
+          "name": "Remove Saved Scheme",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/saved-schemes/{{scheme_id}}"
+          }
+        },
+        {
+          "name": "List All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/user/all?page=1&limit=10",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Schemes",
+      "item": [
+        {
+          "name": "Get All Schemes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.data.schemes.length > 0) {",
+                  "    pm.collectionVariables.set('scheme_id', json.data.schemes[0].id);",
+                  "    console.log('Scheme ID saved:', json.data.schemes[0].id);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/schemes?page=1&limit=10&lang=en",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "lang", "value": "en" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Schemes - Hindi",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/schemes?lang=hi",
+              "query": [{ "key": "lang", "value": "hi" }]
+            }
+          }
+        },
+        {
+          "name": "Filter by Category (Farmer)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/schemes?category=farmer",
+              "query": [{ "key": "category", "value": "farmer" }]
+            }
+          }
+        },
+        {
+          "name": "Filter by Category (Healthcare)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/schemes?category=healthcare",
+              "query": [{ "key": "category", "value": "healthcare" }]
+            }
+          }
+        },
+        {
+          "name": "Search Schemes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/schemes/search?q=kisan&lang=en",
+              "query": [
+                { "key": "q", "value": "kisan" },
+                { "key": "lang", "value": "en" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Scheme Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/schemes/categories"
+          }
+        },
+        {
+          "name": "Get Scheme by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/schemes/{{scheme_id}}?lang=en",
+              "query": [{ "key": "lang", "value": "en" }]
+            }
+          }
+        },
+        {
+          "name": "Get Scheme by ID - Marathi",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/schemes/{{scheme_id}}?lang=mr",
+              "query": [{ "key": "lang", "value": "mr" }]
+            }
+          }
+        },
+        {
+          "name": "Create Scheme (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{base_url}}/api/schemes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schemeCode\": \"NEWSCHEME001\",\n  \"name\": {\n    \"en\": \"New Test Welfare Scheme\",\n    \"hi\": \"नई परीक्षण योजना\",\n    \"mr\": \"नवीन चाचणी योजना\",\n    \"ta\": \"புதிய சோதனை திட்டம்\",\n    \"kn\": \"ಹೊಸ ಪರೀಕ್ಷೆ ಯೋಜನೆ\",\n    \"pa\": \"ਨਵੀਂ ਟੈਸਟ ਯੋਜਨਾ\"\n  },\n  \"description\": {\n    \"en\": \"A new test government welfare scheme for demonstration.\",\n    \"hi\": \"प्रदर्शन के लिए एक नई परीक्षण सरकारी कल्याण योजना।\",\n    \"mr\": \"\", \"ta\": \"\", \"kn\": \"\", \"pa\": \"\"\n  },\n  \"benefits\": {\n    \"en\": \"₹10,000 direct benefit transfer annually\",\n    \"hi\": \"वार्षिक ₹10,000 प्रत्यक्ष लाभ हस्तांतरण\",\n    \"mr\": \"\", \"ta\": \"\", \"kn\": \"\", \"pa\": \"\"\n  },\n  \"category\": \"banking\",\n  \"eligibility\": {\n    \"minAge\": 18,\n    \"maxAge\": 60,\n    \"maxIncome\": 500000,\n    \"allowedStates\": [\"All\"],\n    \"categories\": [\"All\"],\n    \"allowedGenders\": [\"All\"],\n    \"occupations\": [\"All\"]\n  },\n  \"requiredDocuments\": [\"Aadhaar Card\", \"PAN Card\", \"Bank Passbook\"],\n  \"officialLink\": \"https://example.gov.in/newscheme\",\n  \"ministry\": \"Ministry of Finance\",\n  \"launchYear\": 2024\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Scheme (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{base_url}}/api/schemes/{{scheme_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ministry\": \"Ministry of Finance (Updated)\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Deactivate Scheme (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": "{{base_url}}/api/schemes/{{scheme_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎯 Recommendations",
+      "item": [
+        {
+          "name": "Get My Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations?lang=en&page=1&limit=10",
+              "query": [
+                { "key": "lang", "value": "en" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Recommendations - Hindi",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations?lang=hi",
+              "query": [{ "key": "lang", "value": "hi" }]
+            }
+          }
+        },
+        {
+          "name": "Get Recommendations by Category",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations?category=farmer",
+              "query": [{ "key": "category", "value": "farmer" }]
+            }
+          }
+        },
+        {
+          "name": "Get Recommendation Summary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/recommendations/summary"
+          }
+        },
+        {
+          "name": "Check Single Scheme Eligibility",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations/check/{{scheme_id}}?lang=en",
+              "query": [{ "key": "lang", "value": "en" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Admin",
+      "item": [
+        {
+          "name": "Analytics Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": "{{base_url}}/api/admin/analytics"
+          }
+        },
+        {
+          "name": "Get All Schemes (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/admin/schemes?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/user/all?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bulk Toggle Schemes Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{base_url}}/api/admin/schemes/bulk-status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schemeIds\": [\"{{scheme_id}}\"],\n  \"isActive\": true\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
