@@ -97,8 +97,9 @@ const UserSchema = new mongoose.Schema(
 );
 
 // ─── Indexes ───────────────────────────────────────────────────────────────────
-UserSchema.index({ email: 1 });
+// ❌ Removed duplicate email index
 UserSchema.index({ state: 1, category: 1 });
+
 // ─── Pre-save: Hash password ───────────────────────────────────────────────────
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -107,6 +108,7 @@ UserSchema.pre('save', async function (next) {
   if (!this.isNew) this.passwordChangedAt = Date.now() - 1000;
   next();
 });
+
 // ─── Instance Methods ──────────────────────────────────────────────────────────
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
