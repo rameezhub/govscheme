@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Single shared Axios instance — all modules use this
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
